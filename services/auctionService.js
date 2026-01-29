@@ -38,6 +38,15 @@ const items = [
 ];
 
 const getItems = () => {
+    // Demo Logic: Auto-reset expired items so the site stays "alive"
+    const now = Date.now();
+    items.forEach(item => {
+        if (now > item.endTime + 5000) { // 5 seconds after end
+            item.endTime = now + 1000 * 60 * 5; // Reset to 5 mins
+            item.currentBid = item.startingPrice;
+            item.highestBidder = null;
+        }
+    });
     return items;
 };
 
