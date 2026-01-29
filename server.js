@@ -27,19 +27,42 @@ const localDistPath = path.join(__dirname, '../frontend/dist');
 
 const distPath = fs.existsSync(publicPath) ? publicPath : localDistPath;
 
+// Debugging: Log paths to help troubleshoot Render deployment
+console.log('Server started.');
+console.log('__dirname:', __dirname);
+console.log('Public Path:', publicPath);
+console.log('Local Dist Path:', localDistPath);
+console.log('Selected Dist Path:', distPath);
+console.log('Does Dist Path exist?', fs.existsSync(distPath));
+const indexHtmlPath = path.join(distPath, 'index.html');
+console.log('Index HTML Path:', indexHtmlPath);
+console.log('Does Index HTML exist?', fs.existsSync(indexHtmlPath));
+
+// Static file serving removed as frontend is deployed separately.
+// To re-enable unitary deployment, uncomment below:
+/*
 app.use(express.static(distPath));
 
 app.get('*', (req, res, next) => {
     if (req.originalUrl.startsWith('/items') || req.originalUrl.startsWith('/socket.io')) {
         return next();
     }
-    res.sendFile(path.join(distPath, 'index.html'));
+    if (fs.existsSync(indexHtmlPath)) {
+        res.sendFile(indexHtmlPath);
+    } else {
+        res.status(404).send('Frontend not built or not found. Check server logs for paths.');
+    }
+});
+*/
+
+app.get('/', (req, res) => {
+    res.send('Bids Backend Server is Running');
 });
 
 // Socket.io Setup
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all for MVP, should be restricted in production
+        origin: ["http://localhost:5173", process.env.FRONTEND_URL || "*"],
         methods: ["GET", "POST"]
     }
 });
